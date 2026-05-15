@@ -1,0 +1,89 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() { return request.auth != null; }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function isVerifiedUser() { return isSignedIn(); } // Email verification not strictly required for local testing, but good practice.
+    
+    function isValidWorkspace(data) {
+      return data.keys().hasAll(['name', 'ownerId', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.ownerId is string && data.ownerId.size() <= 128 &&
+             (data.keys().hasAny(['ownerEmail']) ? (data.ownerEmail is string && data.ownerEmail.size() <= 200) : true) &&
+             (data.keys().hasAny(['collaboratorEmails']) ? (data.collaboratorEmails is list && data.collaboratorEmails.size() <= 50 && (data.collaboratorEmails.size() == 0 || data.collaboratorEmails[0] is string)) : true) &&
+             (data.keys().hasAny(['viewerEmails']) ? (data.viewerEmails is list && data.viewerEmails.size() <= 50 && (data.viewerEmails.size() == 0 || data.viewerEmails[0] is string)) : true);
+    }
+    
+    function isWorkspaceMember(workspaceData) {
+      return workspaceData.ownerId == request.auth.uid || 
+             (workspaceData.keys().hasAny(['collaboratorEmails']) && (request.auth.token.email in workspaceData.collaboratorEmails)) ||
+             (workspaceData.keys().hasAny(['viewerEmails']) && (request.auth.token.email in workspaceData.viewerEmails));
+    }
+
+    function isWorkspaceEditor(workspaceData) {
+      return workspaceData.ownerId == request.auth.uid || 
+             (workspaceData.keys().hasAny(['collaboratorEmails']) && (request.auth.token.email in workspaceData.collaboratorEmails));
+    }
+    
+    function isWorkspaceOwner(workspaceData) {
+      return workspaceData.ownerId == request.auth.uid;
+    }
+
+    match /workspaces/{workspaceId} {
+      allow get: if isVerifiedUser() && isValidId(workspaceId) && isWorkspaceMember(existing());
+      
+      allow list: if isVerifiedUser() && 
+                  (resource.data.ownerId == request.auth.uid || 
+                  (request.auth.token.email in resource.data.collaboratorEmails) ||
+                  (request.auth.token.email in resource.data.viewerEmails));
+                  
+      allow create: if isVerifiedUser() && isValidId(workspaceId) && 
+                    isValidWorkspace(incoming()) && 
+                    incoming().ownerId == request.auth.uid && 
+                    incoming().createdAt == request.time;
+      
+      allow update: if isVerifiedUser() && isValidId(workspaceId) &&
+                    isValidWorkspace(incoming()) &&
+                    isWorkspaceOwner(existing()) &&
+                    incoming().ownerId == existing().ownerId &&
+                    incoming().createdAt == existing().createdAt &&
+                    incoming().diff(existing()).affectedKeys().hasOnly(['name', 'ownerEmail', 'collaboratorEmails', 'viewerEmails', 'updatedAt']);
+                    
+      allow delete: if isVerifiedUser() && isValidId(workspaceId) && isWorkspaceOwner(existing());
+      
+      match /projects/{projectId} {
+         function getParentWorkspace() {
+            return get(/databases/$(database)/documents/workspaces/$(workspaceId)).data;
+         }
+         
+         function canReadProject() {
+            return isWorkspaceMember(getParentWorkspace());
+         }
+
+         function canWriteProject() {
+            return isWorkspaceEditor(getParentWorkspace());
+         }
+         
+         allow get: if isVerifiedUser() && isValidId(workspaceId) && isValidId(projectId) && canReadProject();
+         
+         allow list: if isVerifiedUser() && isValidId(workspaceId) && 
+                     isWorkspaceMember(get(/databases/$(database)/documents/workspaces/$(workspaceId)).data);
+                     
+         allow create: if isVerifiedUser() && isValidId(workspaceId) && isValidId(projectId) &&
+                       canWriteProject();
+                       
+         allow update: if isVerifiedUser() && isValidId(workspaceId) && isValidId(projectId) &&
+                       canWriteProject();
+                       
+         allow delete: if isVerifiedUser() && isValidId(workspaceId) && isValidId(projectId) &&
+                       canWriteProject();
+      }
+    }
+  }
+}

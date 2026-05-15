@@ -1,0 +1,87 @@
+{
+  "entities": {
+    "Project": {
+      "title": "Project",
+      "description": "A project managed within the app",
+      "type": "object",
+      "properties": {
+        "order": { "type": "number" },
+        "plant": { "type": "string" },
+        "unit": { "type": "string" },
+        "type": { "type": "string" },
+        "startDate": { "type": "string" },
+        "endDate": { "type": "string" },
+        "constructionStartDate": { "type": "string" },
+        "constructionEndDate": { "type": "string" },
+        "otherPhases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "startDate": { "type": "string" },
+              "endDate": { "type": "string" }
+            }
+          }
+        },
+        "phases": {
+          "type": "array",
+          "items": { "type": "object" }
+        },
+        "remarks": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "manager": { "type": "string" },
+        "maintenanceCount": { "type": "number" },
+        "newInstallCount": { "type": "number" },
+        "status": { "type": "string" },
+        "progress": { "type": "number" },
+        "equipments": {
+          "type": "array",
+          "items": { "type": "object" }
+        },
+        "dailyTasks": { "type": "object" },
+        "caseNumbers": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "archived": { "type": "boolean" },
+        "createdAt": { "type": "string", "description": "Firestore timestamp" },
+        "updatedAt": { "type": "string", "description": "Firestore timestamp" }
+      },
+      "required": ["unit", "createdAt", "updatedAt"]
+    },
+    "Workspace": {
+      "title": "Workspace",
+      "description": "A collaborative workspace containing projects",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "ownerEmail": { "type": "string" },
+        "collaboratorEmails": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "viewerEmails": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name", "ownerId", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/workspaces/{workspaceId}": {
+      "schema": { "$ref": "#/entities/Workspace" },
+      "description": "Workspaces that users can collaborate in."
+    },
+    "/workspaces/{workspaceId}/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/Project" },
+      "description": "Projects within a workspace."
+    }
+  }
+}

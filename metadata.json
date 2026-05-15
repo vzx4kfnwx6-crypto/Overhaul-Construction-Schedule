@@ -1,0 +1,6 @@
+{
+  "name": "定檢時程表管理系統",
+  "description": "提供專案列表與年度定檢總覽，支援填寫不同階段專案狀態與甘特圖圖表檢視。",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
