@@ -151,7 +151,7 @@ export function ProjectEdit() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full text-2xl font-bold text-slate-900 bg-transparent border-none focus:outline-none placeholder:text-slate-300"
-            placeholder="請輸入專案名稱..."
+            placeholder="請輸入專案..."
           />
           <Edit2 className="w-5 h-5 text-slate-400 shrink-0 ml-2 pointer-events-none" />
         </div>
