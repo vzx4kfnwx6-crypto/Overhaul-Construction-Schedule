@@ -6,7 +6,7 @@ import { ArrowLeft, Plus, Trash2, Save, X, Edit2 } from "lucide-react";
 
 // predefined parts from user's request
 const PREDEFINED_PARTS = [
-  "馬達", "馬達驅動器", "馬達電源供應器", "反饋迴路電路板", "CPU板", 
+  "馬達", "馬達驅動器", "反饋迴路電路板", "CPU板", 
   "蓄壓控制板", "蓄壓器", "彈性聯軸器", "齒輪泵", "電位計", 
   "保險絲", "注油閥", "溢流閥", "高壓電磁閥", "吸入單向閥", 
   "動力模組油封", "油缸襯套油封與活塞環", "三輪出電源供應器總成", "FMV", 
