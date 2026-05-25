@@ -275,6 +275,7 @@ export function ScheduleGuide() {
                       type="date" 
                       className="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-sm"
                       value={newProjectData.endDate}
+                      min={newProjectData.startDate}
                       onChange={e => setNewProjectData({...newProjectData, endDate: e.target.value})}
                     />
                   </div>
@@ -286,6 +287,8 @@ export function ScheduleGuide() {
                       type="date" 
                       className="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-sm"
                       value={newProjectData.constructionStartDate}
+                      min={newProjectData.startDate}
+                      max={newProjectData.endDate || undefined}
                       onChange={e => setNewProjectData({...newProjectData, constructionStartDate: e.target.value})}
                     />
                   </div>
@@ -295,6 +298,8 @@ export function ScheduleGuide() {
                       type="date" 
                       className="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-sm"
                       value={newProjectData.constructionEndDate}
+                      min={newProjectData.constructionStartDate || newProjectData.startDate}
+                      max={newProjectData.endDate || undefined}
                       onChange={e => setNewProjectData({...newProjectData, constructionEndDate: e.target.value})}
                     />
                   </div>

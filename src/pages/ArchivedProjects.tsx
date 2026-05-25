@@ -8,11 +8,12 @@ import {
   Edit2,
   ArrowRight,
   ArchiveRestore,
+  Trash2,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
 export function ArchivedProjects() {
-  const { projects, updateProject } = useProjects();
+  const { projects, updateProject, deleteProject } = useProjects();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -100,6 +101,18 @@ export function ArchivedProjects() {
                       >
                         <ArchiveRestore className="w-4 h-4" />
                         復原
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm("是否確認刪除?")) {
+                            deleteProject(project.id);
+                          }
+                        }}
+                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold px-2"
+                        title="永久刪除"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        刪除
                       </button>
                    </div>
                 </div>

@@ -27,6 +27,7 @@ interface ProjectContextType {
   projects: Project[];
   updateProject: (project: Project) => void;
   addProject: (project: Project) => void;
+  deleteProject: (id: string) => void;
   globalSettings: GlobalSettings;
   updateGlobalSettings: (settings: GlobalSettings) => void;
 }
@@ -75,12 +76,22 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const deleteProject = async (id: string) => {
+    if (!currentWorkspace) return;
+    try {
+      const pRef = doc(db, `workspaces/${currentWorkspace.id}/projects/${id}`);
+      await deleteDoc(pRef);
+    } catch (e) {
+      handleFirestoreError(e, OperationType.DELETE, `workspaces/${currentWorkspace.id}/projects/${id}`, auth);
+    }
+  };
+
   const updateGlobalSettings = (settings: GlobalSettings) => {
     setGlobalSettings(settings);
   };
 
   return (
-    <ProjectContext.Provider value={{ projects, updateProject, addProject, globalSettings, updateGlobalSettings }}>
+    <ProjectContext.Provider value={{ projects, updateProject, addProject, deleteProject, globalSettings, updateGlobalSettings }}>
       {children}
     </ProjectContext.Provider>
   );
